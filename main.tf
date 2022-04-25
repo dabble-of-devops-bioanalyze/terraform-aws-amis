@@ -4,7 +4,6 @@ data "aws_partition" "current" {}
 ################################################
 # SSH Key
 ################################################
-
 locals {
   create_aws_key_pair = var.aws_key_pair_id != "" ? true : false
 }
@@ -452,7 +451,7 @@ resource "aws_imagebuilder_infrastructure_configuration" "this" {
 }
 
 resource "aws_imagebuilder_image_pipeline" "this" {
-  image_recipe_arn                 = aws_imagebuilder_image_recipe.arn
+  image_recipe_arn                 = aws_imagebuilder_image_recipe.this.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.this.arn
   name                             = replace(join("-", [
     module.this.id,
