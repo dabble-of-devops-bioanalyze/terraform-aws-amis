@@ -31,6 +31,16 @@ variable "aws_security_group_id" {
   default = ""
 }
 
+variable "ami_id" {
+  type    = string
+  default = ""
+}
+
+variable "image_recipe_version" {
+  type    = string
+  default = "1.0.0"
+}
+
 ##################################################
 # Software Version Variables
 ##################################################
@@ -40,12 +50,8 @@ variable "easybuild_version" {
   default = "4.5.4"
 }
 
-variable "image_recipe_version" {
-  type = string
-}
-
 variable "pcluster_versions" {
-  default = ["3.1.0", "3.1.2", "3.2.0b1"]
+  default = ["3.1.2", "3.2.0b1"]
 }
 
 ##################################################

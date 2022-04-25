@@ -28,7 +28,7 @@ resource "null_resource" "mkdirs" {
 }
 
 resource "local_sensitive_file" "ssh_private_key_pem" {
-  depends_on      = [
+  depends_on = [
     null_resource.mkdirs,
   ]
   filename        = "files/user-data/key-pair/id_rsa"
@@ -40,12 +40,12 @@ resource "local_file" "ssh_public_key_openssh" {
   depends_on = [
     null_resource.mkdirs,
   ]
-  filename   = "files/user-data/key-pair/id_rsa.pub"
-  content    = tls_private_key.global_key.public_key_openssh
+  filename = "files/user-data/key-pair/id_rsa.pub"
+  content  = tls_private_key.global_key.public_key_openssh
 }
 
 resource "aws_key_pair" "this" {
-  depends_on      = [
+  depends_on = [
     null_resource.mkdirs,
   ]
   key_name_prefix = "${module.this.id}-keypair"
@@ -82,44 +82,44 @@ resource "aws_security_group" "ssh" {
   vpc_id = var.vpc_id
 
   ingress {
-    description      = "SSH"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = [
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [
       "0.0.0.0/0"
     ]
     ipv6_cidr_blocks = ["::/0"]
   }
 
   ingress {
-    description      = "TLS"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = [
+    description = "TLS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [
       "0.0.0.0/0"
     ]
     ipv6_cidr_blocks = ["::/0"]
   }
 
   ingress {
-    description      = "HTTP"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = [
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [
       "0.0.0.0/0"
     ]
     ipv6_cidr_blocks = ["::/0"]
   }
 
   ingress {
-    description      = "HTTP"
-    from_port        = 8000
-    to_port          = 9000
-    protocol         = "tcp"
-    cidr_blocks      = [
+    description = "HTTP"
+    from_port   = 8000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = [
       "0.0.0.0/0"
     ]
     ipv6_cidr_blocks = ["::/0"]
@@ -149,23 +149,6 @@ locals {
 # AMI
 # TODO We should have a build matrix of amis
 ################################################
-
-
-locals {
-  build_matrix = compact(concat([
-  for version in var.pcluster_versions : {
-    name : "pcluster", version : version, version_t : replace(version, ".", "-"), semantic_version : version
-  }
-  ], [
-    {
-      name : "alinux2", version : "latest", version_t : "1-0-0", semantic_version : "1.0.0",
-    }
-  ]))
-}
-
-output "build_matrix" {
-  value = local.build_matrix
-}
 
 # TODO Add in a check to make sure that they versions match the pcluster ami
 data "aws_ami" "pcluster" {
@@ -215,7 +198,7 @@ output "aws_ami_amazon_linux_2" {
 
 # Local variables used to reduce repetition
 locals {
-  ami_id        = data.aws_ami.amazon_linux_2_ami.image_id
+  ami_id        = var.ami_id != "" ? var.ami_id : data.aws_ami.amazon_linux_2_ami.image_id
   node_username = "ec2-user"
 }
 
@@ -234,9 +217,9 @@ module "s3_bucket" {
 
 data "aws_iam_policy_document" "image_builder" {
   statement {
-    sid       = "ImageBuilderAllow"
-    effect    = "Allow"
-    actions   = [
+    sid     = "ImageBuilderAllow"
+    effect  = "Allow"
+    actions = [
       "ssm:DescribeAssociation",
       "ssm:GetDeployablePatchSnapshotForInstance",
       "ssm:GetDocument",
@@ -268,9 +251,9 @@ data "aws_iam_policy_document" "image_builder" {
   }
 
   statement {
-    sid       = "ImageBuilderS3List"
-    effect    = "Allow"
-    actions   = [
+    sid     = "ImageBuilderS3List"
+    effect  = "Allow"
+    actions = [
       "s3:GetObject",
       "s3:ListBucket",
     ]
@@ -278,18 +261,18 @@ data "aws_iam_policy_document" "image_builder" {
   }
 
   statement {
-    sid       = "ImageBuilderS3Put"
-    effect    = "Allow"
-    actions   = [
+    sid     = "ImageBuilderS3Put"
+    effect  = "Allow"
+    actions = [
       "s3:PutObject"
     ]
     resources = ["arn:aws:s3:::${module.s3_bucket.bucket_id}/image-builder/*"]
   }
 
   statement {
-    sid       = "ImageBuilderLogStream"
-    effect    = "Allow"
-    actions   = [
+    sid     = "ImageBuilderLogStream"
+    effect  = "Allow"
+    actions = [
       "logs:CreateLogStream",
       "logs:CreateLogGroup",
       "logs:PutLogEvents"
@@ -298,9 +281,9 @@ data "aws_iam_policy_document" "image_builder" {
   }
 
   statement {
-    sid       = "ImageBuilderKMS"
-    effect    = "Allow"
-    actions   = [
+    sid     = "ImageBuilderKMS"
+    effect  = "Allow"
+    actions = [
       "kms:Decrypt"
     ]
     resources = ["*"]
@@ -329,12 +312,12 @@ output "aws_iam_policy_document_image_builder" {
 }
 
 resource "aws_iam_role" "imagebuilder" {
-  name                = "${module.this.id}-imagebuilder-role"
+  name = "${module.this.id}-imagebuilder-role"
   inline_policy {
     name   = "${module.this.id}-imagebuilder-policy"
     policy = data.aws_iam_policy_document.image_builder.json
   }
-  assume_role_policy  = jsonencode({
+  assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [
       {
@@ -403,25 +386,19 @@ output "scientific_stack" {
   value = local.scientific_stack
 }
 
-locals {
-  amis = compact(concat(data.aws_ami.pcluster, [data.aws_ami.amazon_linux_2_ami]))
-}
 
 resource "aws_imagebuilder_image_recipe" "this" {
-  count      = length(local.build_matrix)
   depends_on = [
     data.aws_ami.amazon_linux_2_ami,
-    data.aws_ami.pcluster,
     module.s3_bucket,
     aws_imagebuilder_component.scientific_stack,
   ]
 
-  name         = replace(join("-", [
-    module.this.id, lookup(local.build_matrix[count.index], "name"), "-v",
-    lookup(local.build_matrix[count.index], "version_t"),
+  name = replace(join("-", [
+    module.this.id,
     "recipe"
   ]), ".", "")
-  parent_image = lookup(local.amis[count.index], "image_id")
+  parent_image = local.ami_id
   version      = "1.0.0"
 
   block_device_mapping {
@@ -448,7 +425,7 @@ resource "aws_imagebuilder_image_recipe" "this" {
 
 
 resource "aws_imagebuilder_infrastructure_configuration" "this" {
-  depends_on            = [
+  depends_on = [
     module.s3_bucket,
     aws_iam_role.imagebuilder,
     aws_key_pair.this,
@@ -475,19 +452,17 @@ resource "aws_imagebuilder_infrastructure_configuration" "this" {
 }
 
 resource "aws_imagebuilder_image_pipeline" "this" {
-  count                            = length(local.build_matrix)
-  image_recipe_arn                 = aws_imagebuilder_image_recipe.this[count.index].arn
+  image_recipe_arn                 = aws_imagebuilder_image_recipe.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.this.arn
   name                             = replace(join("-", [
-    module.this.id, lookup(local.build_matrix[count.index], "name"), "-v",
-    lookup(local.build_matrix[count.index], "version_t"),
+    module.this.id,
     "imagebuilder-pipeline"
   ]), ".", "")
 
   status      = "ENABLED"
   description = join(" ", [
-    "BioAnalyze image for: ",
-    module.this.id, lookup(local.build_matrix[count.index], "name"), lookup(local.build_matrix[count.index], "version"),
+    "AMI: ",
+    module.this.id,
     "imagebuilder-pipeline"
   ])
 
@@ -508,18 +483,15 @@ resource "aws_imagebuilder_image_pipeline" "this" {
 
 resource "aws_imagebuilder_distribution_configuration" "this" {
 
-  count = length(local.build_matrix)
-  name  = replace(join("-", [
-    module.this.id, lookup(local.build_matrix[count.index], "name"), "-v",
-    lookup(local.build_matrix[count.index], "version_t"),
+  name = replace(join("-", [
+    module.this.id,
     "dist-config"
   ]), ".", "")
 
   distribution {
     ami_distribution_configuration {
       name = replace(join("-", [
-        module.this.id, lookup(local.build_matrix[count.index], "name"), "-v",
-        lookup(local.build_matrix[count.index], "version_t"),
+        module.this.id,
         "{{ imagebuilder:buildDate }}"
       ]), ".", "")
 
@@ -531,17 +503,15 @@ resource "aws_imagebuilder_distribution_configuration" "this" {
 }
 
 resource "aws_imagebuilder_image" "this" {
-  count = length(local.build_matrix)
-
-  depends_on                       = [
+  depends_on = [
     data.aws_iam_policy_document.image_builder,
     aws_iam_role.imagebuilder,
     aws_imagebuilder_distribution_configuration.this,
     aws_imagebuilder_image_recipe.this,
     aws_imagebuilder_infrastructure_configuration.this,
   ]
-  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.this[count.index].arn
-  image_recipe_arn                 = aws_imagebuilder_image_recipe.this[count.index].arn
+  distribution_configuration_arn   = aws_imagebuilder_distribution_configuration.this.arn
+  image_recipe_arn                 = aws_imagebuilder_image_recipe.this.arn
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.this.arn
 }
 
