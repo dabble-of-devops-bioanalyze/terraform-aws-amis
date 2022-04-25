@@ -1,7 +1,11 @@
-module "example" {
+module "imagebuilder" {
   source = "../.."
 
-  example = var.example
+  vpc_id    = var.vpc_id
+  subnet_id = var.subnet_id
+  region    = var.region
 
-  context = module.this.context
+  image_recipe_version = "1.0.0"
+  context              = module.this.context
 }
+

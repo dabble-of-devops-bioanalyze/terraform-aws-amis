@@ -20,3 +20,8 @@ crash.log
 test.log
 
 _templates/test/tests/__pycache__/
+
+# make sure not to add any files here
+examples/files
+examples/files/**
+examples/**/output.json

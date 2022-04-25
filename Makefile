@@ -36,3 +36,6 @@ custom-readme:
 		-e README_TEMPLATE_FILE=/tmp/terraform-module/README.md.gotmpl \
 		-w /tmp/terraform-module \
 		cloudposse/build-harness:slim-latest readme
+
+ec2builder/components:
+	aws imagebuilder get-component --component-build-version-arn arn:aws:imagebuilder:us-west-2:123456789012:component/my-example-component/2019.12.02/1

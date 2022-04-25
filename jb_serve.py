@@ -183,7 +183,10 @@ def generate_fileset(
     include: List[str], exclude: List[str], directory: Path, return_relative: True
 ):
     examples_fileset = formic.FileSet(
-        include=include, exclude=exclude, directory=directory, symlinks=False,
+        include=include,
+        exclude=exclude,
+        directory=directory,
+        symlinks=False,
     )
     files = []
     for file in examples_fileset:
@@ -234,7 +237,7 @@ def main(pathsource: Path, examplesdir: Path, outputdir: Path, port: int):
             return_relative=True,
         )
         includes_tmp = tempfile.NamedTemporaryFile(delete=False)
-        with open(includes_tmp.name, 'w') as fh:
+        with open(includes_tmp.name, "w") as fh:
             fh.write("\n".join(copy_fileset))
 
         # TODO Change all hacky references to cwd to a root dir
@@ -245,7 +248,7 @@ def main(pathsource: Path, examplesdir: Path, outputdir: Path, port: int):
      {os.path.relpath(example["example_dir"], os.getcwd())}/* \
      {os.path.relpath(example["destination_dir"], os.getcwd())}/
         """
-        logger.info('Rsyncing: ')
+        logger.info("Rsyncing: ")
         logger.info(rsync_command)
         subprocess.run(
             [
@@ -262,7 +265,11 @@ def main(pathsource: Path, examplesdir: Path, outputdir: Path, port: int):
             clean_this = os.path.join(example["destination_dir"], clean)
             if os.path.exists(clean_this):
                 subprocess.run(
-                    ["bash", "-c", f'rm -rf {clean_this}',]
+                    [
+                        "bash",
+                        "-c",
+                        f"rm -rf {clean_this}",
+                    ]
                 )
 
     def gencookiecutter_dirs() -> List[CookiecutterDir]:
@@ -325,7 +332,10 @@ def main(pathsource: Path, examplesdir: Path, outputdir: Path, port: int):
 
     def gencookiecutter_context(example: CookiecutterDir, extra_context):
 
-        config_dict = get_user_config(config_file=None, default_config=False,)
+        config_dict = get_user_config(
+            config_file=None,
+            default_config=False,
+        )
         repo_dir, cleanup = determine_repo_dir(
             template=COOKIECUTTER_TEMPLATE_REPO,
             abbreviations=config_dict["abbreviations"],

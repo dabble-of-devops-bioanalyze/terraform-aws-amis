@@ -1,4 +1,16 @@
-variable "example" {
-  type        = string
-  description = "The value which will be passed to the example module"
+variable "region" {
+  type = string
+}
+
+variable "vpc_id" {
+  type = string
+}
+
+variable "subnet_id" {
+  type = string
+}
+
+variable "aws_key_pair_id" {
+  type    = string
+  default = ""
 }

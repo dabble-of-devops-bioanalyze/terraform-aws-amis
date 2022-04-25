@@ -16,5 +16,5 @@ logging.basicConfig(level=logging.INFO)
 
 
 def test_output():
-    logging.info(f'Writing some tests')
-    assert 1 == 1, print('did not succeed')
+    logging.info(f"Writing some tests")
+    assert 1 == 1, print("did not succeed")

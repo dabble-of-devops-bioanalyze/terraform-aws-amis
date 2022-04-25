@@ -1,14 +1,24 @@
 output "id" {
-  description = "ID of the created example"
-  value       = module.example.id
+  description = "ID of the created imagebuilder"
+  value       = module.imagebuilder.id
 }
 
-output "example" {
-  description = "Output \"example\" from example module"
-  value       = module.example.example
+output "imagebuilder" {
+  value     = module.imagebuilder
+  sensitive = true
 }
 
-output "random" {
-  description = "Output \"random\" from example module"
-  value       = module.example.random
+#output "aws_imagebuilder_image" {
+#  value = module.imagebuilder.aws_imagebuilder_image
+#}
+#
+#output "aws_imagebuilder_amis" {
+#  value = module.imagebuilder.aws_imagebuilder_image.output_resources[0].amis
+#}
+
+#output "aws_ami_pcluster" {
+#  value = module.imagebuilder.aws_ami_pcluster
+#}
+output "prefix" {
+  value = module.imagebuilder.prefix
 }
