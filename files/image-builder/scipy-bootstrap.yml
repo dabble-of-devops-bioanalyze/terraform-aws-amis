@@ -77,7 +77,7 @@ phases:
               sudo yum-config-manager --enable epel
               sudo yum update -y; yum upgrade -y
               sudo yum group install -y 'Development Tools'
-              sudo yum install --quiet -y curl unzip wget git Lmod sudo conda python3 pip3 amazon-efs-utils curl \
+              sudo yum install --quiet -y curl unzip wget git Lmod sudo conda python3 pip3 amazon-efs-utils quota curl \
               R \
               openssl openssl-devel \
               vsftpd
